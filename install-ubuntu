@@ -19,6 +19,8 @@ do
   echo "${OUTPUT} hold" | dpkg --set-selections
 done
 
+UBUNTU_VERSION=`cat /etc/lsb-release | grep "DISTRIB_RELEASE" | awk '{split($0,a,"="); print a[2]}'`
+
 # 환경을 체크하여 디렉토리를 결정 합니다
 DHCP_HOOK_DIR="/etc/dhcp"
 if [[ ! -d "${DHCP_HOOK_DIR}/dhclient-exit-hooks.d" ]]; then
@@ -33,12 +35,20 @@ apt-get update -fy
 apt-get upgrade -fy
 apt-get install -fy ruby rubygems rake curl xe-guest-utilities
 
+#10.4의 경우에는 다음의 패키지를 설치 해야 함.
+if [[ "${UBUNTU_VERSION}" == "10.04" ]]; then
+  echo "Ubuntu Lucid/10.04"
+  #libopenssl-ruby1.8
+else
+  echo "Ubuntu Precise/12.04"
+fi
+
 # 원래의 미러로 돌립니다.
 sed -i -e "s,ftp\.daum\.net,kr\.archive\.ubuntu\.com,g" /etc/apt/sources.list
 
 cd ~
 # gem 파일을 받아옴. (개인 리포에 미러링해둠)
-wget https://github.com/ziozzang/ucloud-init/blob/master/ucloud-init-0.0.1.gem
+wget http://github.com/ziozzang/ucloud-init/raw/master/ucloud-init-0.0.1.gem
 gem install ucloud-init-*.gem -n /usr/bin
 
 ucloud-init --make-as-first-boot
