@@ -1,0 +1,84 @@
+#!/bin/bash
+# ucloud-init 설치
+# - for Ubuntu
+# - x86_32 / x_86
+# - 10.04 / 12.04
+# Code by Jioh L. Jung (zio.zzang@gkt.com)
+
+# 커널 업데이트를 막습니다.
+KERNEL=`dpkg --get-selections | grep "linux-image-" | grep virtual | grep -w install | awk '{print $1}'`
+for OUTPUT in ${KERNEL}
+do
+  echo "${OUTPUT} hold" | dpkg --set-selections
+done
+
+# 커널에 의존적인 헤더 업데이트를 막습니다.
+HEADERS=`dpkg --get-selections | grep "linux-headers-" | grep virtual | grep -w install | awk '{print $1}'`
+for OUTPUT in ${HEADERS}
+do
+  echo "${OUTPUT} hold" | dpkg --set-selections
+done
+
+# 환경을 체크하여 디렉토리를 결정 합니다
+DHCP_HOOK_DIR="/etc/dhcp"
+if [[ ! -d "${DHCP_HOOK_DIR}/dhclient-exit-hooks.d" ]]; then
+  DHCP_HOOK_DIR="/etc/dhcp3"
+fi
+
+# 원래 미러가 느리기 때문에 미러 주소를 다음쪽으로 잠시 변경 합니다
+sed -i -e "s,kr\.archive\.ubuntu\.com,ftp\.daum\.net,g" /etc/apt/sources.list
+
+# 필요한 부분 업그레이드. 업데이트+업그레이드가 되지 않으면 패키지 설치가 불가능해지는 경우가 있습니다.
+apt-get update -fy
+apt-get upgrade -fy
+apt-get install -fy ruby rubygems rake curl xe-guest-utilities
+
+# 원래의 미러로 돌립니다.
+sed -i -e "s,ftp\.daum\.net,kr\.archive\.ubuntu\.com,g" /etc/apt/sources.list
+
+cd ~
+# gem 파일을 받아옴. (개인 리포에 미러링해둠)
+wget https://github.com/ziozzang/ucloud-init/blob/master/ucloud-init-0.0.1.gem
+gem install ucloud-init-*.gem -n /usr/bin
+
+ucloud-init --make-as-first-boot
+rm -rf /root/.vim*
+rm -f /root/*
+rm -f /tmp/*
+rm -f /var/log/*
+rm -f /var/log/news/*
+rm -f /var/log/upstart/*
+
+# For Debugging Purpose.
+#sed -i -e "s,^\(RUN\).*,\1=\"no\",g" ${DHCP_HOOK_DIR}/dhclient-exit-hooks.d/debug
+#sed -i -e "s,^\(RUN\).*,\1=\"no\",g" ${DHCP_HOOK_DIR}/dhclient-enter-hooks.d/debug
+
+cat << EOF > ${DHCP_HOOK_DIR}/dhclient-exit-hooks.d/ucloud-init
+# ucloud-init
+# Code by Jioh L. Jung (zio.zzang@kt.com)
+
+if [ "\${reason}" = "BOUND" ]; then
+  URL="http://\${new_dhcp_server_identifier}/latest/user-data"
+  USER_DATA="/root/userdata.yml"
+  curl \$URL > \$USER_DATA
+
+  cat \$USER_DATA | /usr/bin/ucloud-init --pre-config-commands
+  cat \$USER_DATA | /usr/bin/ucloud-init --config-commands
+  cat \$USER_DATA | /usr/bin/ucloud-init --post-config-commands
+fi
+EOF
+
+/usr/bin/ucloud-init --make-as-first-boot
+
+cat << EOF > /etc/rc0.d/S38veryinit
+#!/bin/bash
+
+rm -f /tmp/*
+rm -f /var/log/*
+rm -f /root/.vi*
+
+ucloud-init --make-as-first-boot
+
+rm -f /etc/rc0.d/S38veryinit
+EOF
+chmod 777 /etc/rc0.d/S38veryinit
