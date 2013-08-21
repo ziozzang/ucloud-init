@@ -1,0 +1,19 @@
+#!/bin/bash
+
+/usr/bin/ucloud-init --make-as-first-boot
+
+cat << EOF > /etc/rc0.d/S38veryinit
+#!/bin/bash
+
+rm -f /tmp/*
+rm -f /var/log/*
+rm -f /root/.vi*
+rm -f /root/*
+rm -f /var/log/news/*
+rm -f /var/log/upstart/*
+
+ucloud-init --make-as-first-boot
+
+rm -f /etc/rc0.d/S38veryinit
+EOF
+chmod 777 /etc/rc0.d/S38veryinit
