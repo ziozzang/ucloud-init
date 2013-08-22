@@ -1,6 +1,8 @@
 ucloud-init
 ===========
 
+* code by Jioh L. Jung (ziozzang@gmail.com)
+
 UCloud System Init Script
 
 * Ubuntu ucloud-init installation
