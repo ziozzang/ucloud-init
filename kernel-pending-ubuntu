@@ -1,0 +1,20 @@
+#!/bin/bash
+# ucloud-init 설치
+# - for Ubuntu
+# - x86_32 / x_86
+# - 10.04 / 12.04
+# Code by Jioh L. Jung (zio.zzang@gkt.com)
+
+# 커널 업데이트를 막습니다.
+KERNEL=`dpkg --get-selections | grep "linux-image-" | grep virtual | grep -w install | awk '{print $1}'`
+for OUTPUT in ${KERNEL}
+do
+  echo "${OUTPUT} hold" | dpkg --set-selections
+done
+
+# 커널에 의존적인 헤더 업데이트를 막습니다.
+HEADERS=`dpkg --get-selections | grep "linux-headers-" | grep virtual | grep -w install | awk '{print $1}'`
+for OUTPUT in ${HEADERS}
+do
+  echo "${OUTPUT} hold" | dpkg --set-selections
+done
