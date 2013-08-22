@@ -5,20 +5,6 @@
 # - 10.04 / 12.04
 # Code by Jioh L. Jung (zio.zzang@gkt.com)
 
-# 커널 업데이트를 막습니다.
-KERNEL=`dpkg --get-selections | grep "linux-image-" | grep virtual | grep -w install | awk '{print $1}'`
-for OUTPUT in ${KERNEL}
-do
-  echo "${OUTPUT} hold" | dpkg --set-selections
-done
-
-# 커널에 의존적인 헤더 업데이트를 막습니다.
-HEADERS=`dpkg --get-selections | grep "linux-headers-" | grep virtual | grep -w install | awk '{print $1}'`
-for OUTPUT in ${HEADERS}
-do
-  echo "${OUTPUT} hold" | dpkg --set-selections
-done
-
 UBUNTU_VERSION=`cat /etc/lsb-release | grep "DISTRIB_RELEASE" | awk '{split($0,a,"="); print a[2]}'`
 
 # 환경을 체크하여 디렉토리를 결정 합니다
