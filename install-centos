@@ -1,0 +1,47 @@
+#!/bin/bash
+
+yum update -y
+yum install -y ruby rubygems
+
+wget http://github.com/ziozzang/ucloud-init/raw/master/ucloud-init-0.0.1.gem
+gem install ucloud-init-*.gem -n /usr/bin
+
+ucloud-init --make-as-first-boot
+rm -rf /root/.vim*
+rm -f /root/*
+rm -f /tmp/*
+rm -f /var/log/*
+rm -f /var/log/news/*
+rm -f /var/log/upstart/*
+
+cat > /etc/init.d/ucloud-init << EOF
+#!/bin/sh
+
+if [ "" != "\`cat /etc/*-release | grep -i Ubuntu\`" ]
+then
+        IP=\`cat /var/lib/dhcp3/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
+elif [ "" != "\`cat /etc/*-release | grep -i Cent\`" ]
+then
+        IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
+else
+        echo "ucoud-init does not support this OS"
+        exit 1
+fi
+
+PATH=\$PATH:/usr/local/bin
+
+URL="http://\${IP}/latest/user-data"
+USER_DATA="/root/userdata.yml"
+curl \$URL > \$USER_DATA
+
+cat \$USER_DATA | ucloud-init --pre-config-commands
+cat \$USER_DATA | ucloud-init --config-commands
+cat \$USER_DATA | ucloud-init --post-config-commands
+EOF
+
+
+chmod 755 /etc/init.d/ucloud-init
+ln -s /etc/init.d/ucloud-init /etc/rc2.d/S50ucloud-init
+ln -s /etc/init.d/ucloud-init /etc/rc3.d/S50ucloud-init
+ln -s /etc/init.d/ucloud-init /etc/rc4.d/S50ucloud-init
+ln -s /etc/init.d/ucloud-init /etc/rc5.d/S50ucloud-init
