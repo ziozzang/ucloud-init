@@ -13,6 +13,7 @@ rm -f /tmp/*
 rm -f /var/log/*
 rm -f /var/log/news/*
 rm -f /var/log/upstart/*
+rm -f /root/.ssh/authorized_keys
 
 cat > /etc/init.d/ucloud-init << EOF
 #!/bin/sh
