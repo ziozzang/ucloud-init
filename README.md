@@ -5,6 +5,13 @@ ucloud-init
 
 UCloud System Init Script
 
+* Centos ucloud-init installation
+
+```
+curl https://raw.github.com/ziozzang/ucloud-init/master/install-centos | bash
+```
+
+
 * Ubuntu ucloud-init installation
 
 ```
