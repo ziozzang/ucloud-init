@@ -1,6 +1,6 @@
 #!/bin/bash
 
-yum update -y
+#yum update -y
 yum install -y ruby rubygems
 
 wget http://github.com/ziozzang/ucloud-init/raw/master/ucloud-init-0.0.1.gem
