@@ -1,7 +1,18 @@
 #!/bin/bash
 
+CENTVER=`rpm -qa \*-release | grep -Ei "oracle|redhat|centos" | cut -d"-" -f3`
 #yum update -y
 yum install -y ruby rubygems
+
+# Centos 5.X must require gems 1.2.0
+if [[ "$CENTVER" -eq "5" ]]; then
+  wget http://production.cf.rubygems.org/rubygems/rubygems-1.2.0.tgz
+  tar -xzvf rubygems-1.2.0.tgz
+  cd rubygems-1.2.0
+  ruby setup.rb
+  cd ..
+  rm -rf rubygems-1.2.0*
+fi
 
 wget http://github.com/ziozzang/ucloud-init/raw/master/ucloud-init-0.0.1.gem
 gem install ucloud-init-*.gem -n /usr/bin
