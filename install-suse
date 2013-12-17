@@ -28,7 +28,6 @@ rm -f /root/.ssh/authorized_keys
 cat > /etc/init.d/boot.ucloud-init << EOF
 #!/bin/sh
 . /var/lib/dhcpcd/dhcpcd-eth0.info
-IP=\`cat /var/lib/dhcp/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
 
 PATH=\$PATH:/usr/local/bin
 
