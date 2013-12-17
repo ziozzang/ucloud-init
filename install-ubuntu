@@ -5,7 +5,12 @@
 # - 10.04 / 12.04
 # Code by Jioh L. Jung (zio.zzang@gkt.com)
 
-UBUNTU_VERSION=`cat /etc/lsb-release | grep "DISTRIB_RELEASE" | awk '{split($0,a,"="); print a[2]}'`
+DEBIAN_FLAG=`cat /etc/issue.net | grep -i debian | wc -l`
+UBUNTU_FLAG=`cat /etc/issue.net | grep -i ubuntu | wc -l`
+
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+  UBUNTU_VERSION=`cat /etc/lsb-release | grep "DISTRIB_RELEASE" | awk '{split($0,a,"="); print a[2]}'`
+fi
 
 # 환경을 체크하여 디렉토리를 결정 합니다
 DHCP_HOOK_DIR="/etc/dhcp"
@@ -14,23 +19,34 @@ if [[ ! -d "${DHCP_HOOK_DIR}/dhclient-exit-hooks.d" ]]; then
 fi
 
 # 원래 미러가 느리기 때문에 미러 주소를 다음쪽으로 잠시 변경 합니다
-sed -i -e "s,kr\.archive\.ubuntu\.com,ftp\.daum\.net,g" /etc/apt/sources.list
-
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+  sed -i -e "s,kr\.archive\.ubuntu\.com,ftp\.daum\.net,g" /etc/apt/sources.list
+fi
 # 필요한 부분 업그레이드. 업데이트+업그레이드가 되지 않으면 패키지 설치가 불가능해지는 경우가 있습니다.
-apt-get update -fy
-apt-get upgrade -fy
-apt-get install -fy ruby rubygems rake curl xe-guest-utilities
 
-#10.4의 경우에는 다음의 패키지를 설치 해야 함.
-if [[ "${UBUNTU_VERSION}" == "10.04" ]]; then
-  echo "Ubuntu Lucid/10.04"
-  #libopenssl-ruby1.8
-else
-  echo "Ubuntu Precise/12.04"
+apt-get update -fy
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+  apt-get upgrade -fy
 fi
 
+apt-get install -fy ruby rubygems rake curl
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+  apt-get install -fy xe-guest-utilities
+fi
+
+#10.4의 경우에는 다음의 패키지를 설치 해야 함.
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+  if [[ "${UBUNTU_VERSION}" == "10.04" ]]; then
+    echo "Ubuntu Lucid/10.04"
+    #libopenssl-ruby1.8
+  else
+    echo "Ubuntu Precise/12.04"
+  fi
+fi
 # 원래의 미러로 돌립니다.
-sed -i -e "s,ftp\.daum\.net,kr\.archive\.ubuntu\.com,g" /etc/apt/sources.list
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+  sed -i -e "s,ftp\.daum\.net,kr\.archive\.ubuntu\.com,g" /etc/apt/sources.list
+fi
 
 cd ~
 # gem 파일을 받아옴. (개인 리포에 미러링해둠)
