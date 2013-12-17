@@ -30,7 +30,7 @@ rm -f /root/.ssh/authorized_keys
 cat > /etc/init.d/ucloud-init << EOF
 #!/bin/sh
 
-if [ "" != "\`cat /etc/issue.net | grep -i debian | awk '{print \$1}'`" ]
+if [ "" != "\`cat /etc/issue.net | grep -i debian | awk '{print \$1}'\`" ]
 then
   # for Debian
   IP=\`cat /var/lib/dhcp/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
