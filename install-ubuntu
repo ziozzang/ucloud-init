@@ -65,6 +65,8 @@ rm -f /var/log/upstart/*
 #sed -i -e "s,^\(RUN\).*,\1=\"no\",g" ${DHCP_HOOK_DIR}/dhclient-exit-hooks.d/debug
 #sed -i -e "s,^\(RUN\).*,\1=\"no\",g" ${DHCP_HOOK_DIR}/dhclient-enter-hooks.d/debug
 
+if [[ "${UBUNTU_FLAG}" -eq "1" ]]; then
+# For Ubuntu
 cat << EOF > ${DHCP_HOOK_DIR}/dhclient-exit-hooks.d/ucloud-init
 # ucloud-init
 # Code by Jioh L. Jung (zio.zzang@kt.com)
@@ -79,6 +81,24 @@ if [ "\${reason}" = "BOUND" ]; then
   cat \$USER_DATA | /usr/bin/ucloud-init --post-config-commands
 fi
 EOF
+else
+# For Debian
+cat << EOF > ${DHCP_HOOK_DIR}/dhclient-exit-hooks.d/ucloud-init
+# ucloud-init
+# Code by Jioh L. Jung (zio.zzang@kt.com)
+
+if [ "\${new_routers}" -ne "" ]; then
+  URL="http://\${new_dhcp_server_identifier}/latest/user-data"
+  USER_DATA="/root/userdata.yml"
+  curl \$URL > \$USER_DATA
+
+  cat \$USER_DATA | /usr/bin/ucloud-init --pre-config-commands
+  cat \$USER_DATA | /usr/bin/ucloud-init --config-commands
+  cat \$USER_DATA | /usr/bin/ucloud-init --post-config-commands
+fi
+EOF
+fi
+
 
 /usr/bin/ucloud-init --make-as-first-boot
 
