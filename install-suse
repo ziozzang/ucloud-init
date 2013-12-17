@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# ruby 는 기본으로 설치 되어 있음.
+# ISSUE: 아래 명령어는 제대로 먹지 않는다.
+# CD-ROM 미디어 이슈임.
+# yast -i rubygems
+
+#  가장 최신 버전을 설정
+wget http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz
+tar -xzvf rubygems-1.6.2.tgz
+cd rubygems-1.6.2
+ruby setup.rb
+cd ..
+rm -rf rubygems-1.6.2*
+
+wget http://github.com/ziozzang/ucloud-init/raw/master/ucloud-init-0.0.1.gem
+gem install ucloud-init-*.gem -n /usr/bin
+
+ucloud-init --make-as-first-boot
+rm -rf /root/.vim*
+rm -f /root/*
+rm -f /tmp/*
+rm -f /var/log/*
+rm -f /var/log/news/*
+rm -f /var/log/upstart/*
+rm -f /root/.ssh/authorized_keys
+
+cat > /etc/init.d/boot.ucloud-init << EOF
+#!/bin/sh
+. /var/lib/dhcpcd/dhcpcd-eth0.info
+IP=\`cat /var/lib/dhcp/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
+
+PATH=\$PATH:/usr/local/bin
+
+URL="http://\${DHCPSIADDR}/latest/user-data"
+USER_DATA="/root/userdata.yml"
+curl \$URL > \$USER_DATA
+
+cat \$USER_DATA | ucloud-init --pre-config-commands
+cat \$USER_DATA | ucloud-init --config-commands
+cat \$USER_DATA | ucloud-init --post-config-commands
+EOF
+
+chmod +x  /etc/init.d/boot.ucloud-init
+if [[ ! "$(grep '^/etc/init.d/boot.ucloud-init' /etc/init.d/boot.local)" ]]; then
+  echo "/etc/init.d/boot.ucloud-init" >> /etc/init.d/boot.local
+  #sed -i -e "s,\(^exit .*\),/etc/init.d/boot.ucloud-init\n\1," /etc/init.d/boot.local
+fi
