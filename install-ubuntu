@@ -87,7 +87,7 @@ cat << EOF > ${DHCP_HOOK_DIR}/dhclient-exit-hooks.d/ucloud-init
 # ucloud-init
 # Code by Jioh L. Jung (zio.zzang@kt.com)
 
-if [ "\${new_routers}" -ne "" ]; then
+if [ "\${new_dhcp_server_identifier}" -ne "" ]; then
   URL="http://\${new_dhcp_server_identifier}/latest/user-data"
   USER_DATA="/root/userdata.yml"
   curl \$URL > \$USER_DATA
