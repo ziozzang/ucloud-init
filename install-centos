@@ -1,19 +1,20 @@
 #!/bin/bash
 
-CENTVER=`rpm -qa \*-release | grep -Ei "oracle|redhat|centos" | cut -d"-" -f3`
+RELEASEVER=`rpm -qa \*-release | grep -Ei "oracle|redhat|centos|fedora" | cut -d"-" -f3`
 #yum update -y
 yum install -y ruby rubygems
 
 # Centos 5.X must require gems 1.2.0
-if [[ "$CENTVER" -eq "5" ]]; then
-  wget http://production.cf.rubygems.org/rubygems/rubygems-1.2.0.tgz
-  tar -xzvf rubygems-1.2.0.tgz
-  cd rubygems-1.2.0
-  ruby setup.rb
-  cd ..
-  rm -rf rubygems-1.2.0*
+if [[ "" != "\`cat /etc/*-release | grep -i Cent\`" ]]; then
+  if [[ "$RELEASEVER" -eq "5" ]]; then
+    wget http://production.cf.rubygems.org/rubygems/rubygems-1.2.0.tgz
+    tar -xzvf rubygems-1.2.0.tgz
+    cd rubygems-1.2.0
+    ruby setup.rb
+    cd ..
+    rm -rf rubygems-1.2.0*
+  fi
 fi
-
 wget http://github.com/ziozzang/ucloud-init/raw/master/ucloud-init-0.0.1.gem
 gem install ucloud-init-*.gem -n /usr/bin
 
@@ -33,6 +34,9 @@ if [ "" != "\`cat /etc/*-release | grep -i Ubuntu\`" ]
 then
         IP=\`cat /var/lib/dhcp3/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
 elif [ "" != "\`cat /etc/*-release | grep -i Cent\`" ]
+then
+        IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
+elif [ "" != "\`cat /etc/*-release | grep -i Fedora\`" ]
 then
         IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
 else
