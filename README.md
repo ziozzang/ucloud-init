@@ -8,17 +8,24 @@ UCloud System Init Script
 Installation
 ============
 
-* Centos/Fedora ucloud-init installation
+* Centos 5.X, 6.X/Fedora 13 ucloud-init installation
 
 ```
 curl https://raw.github.com/ziozzang/ucloud-init/master/install-centos | bash
 ```
 
 
-* Ubuntu/Debian ucloud-init installation
+* Ubuntu 10.4, 12.4 /Debian 6 ucloud-init installation
 
 ```
 wget -qO- https://raw.github.com/ziozzang/ucloud-init/master/install-ubuntu | bash
+```
+
+
+* SUSE 11 ucloud-init installation
+
+```
+wget -qO- https://raw.github.com/ziozzang/ucloud-init/master/install-suse | bash
 ```
 
 
@@ -29,7 +36,7 @@ wget -qO- https://raw.github.com/ziozzang/ucloud-init/master/reset-ubuntu | bash
 ```
 
 
-* Set Kernel Update Pending while apt-get upgrade
+* Set Kernel Update Pending while apt-get upgrade (for Ubuntu)
 
 ```
 wget -qO- https://raw.github.com/ziozzang/ucloud-init/master/kernel-pending-ubuntu | bash
