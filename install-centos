@@ -30,18 +30,25 @@ rm -f /root/.ssh/authorized_keys
 cat > /etc/init.d/ucloud-init << EOF
 #!/bin/sh
 
-if [ "" != "\`cat /etc/*-release | grep -i Ubuntu\`" ]
+if [ "" != "\`cat /etc/issue.net | grep -i debian | awk '{print \$1}'`" ]
 then
-        IP=\`cat /var/lib/dhcp3/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
+  # for Debian
+  IP=\`cat /var/lib/dhcp/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
+elif [ "" != "\`cat /etc/*-release | grep -i Ubuntu\`" ]
+then
+  # Ubuntu
+  IP=\`cat /var/lib/dhcp3/dhclient.eth0.leases | grep dhcp-server-identifier | tail -1 |awk '{print \$3}'| sed -e 's/\\(.*\\);/\\1/'\`
 elif [ "" != "\`cat /etc/*-release | grep -i Cent\`" ]
 then
-        IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
+  # Centos
+  IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
 elif [ "" != "\`cat /etc/*-release | grep -i Fedora\`" ]
 then
-        IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
+  # Fedora
+  IP=\`cat /var/lib/dhclient/dhclient-eth0.leases | grep dhcp-server-identifier | tail -1 | awk '{print \$3}' | sed -e 's/\\(.*\\);/\\1/'\`
 else
-        echo "ucoud-init does not support this OS"
-        exit 1
+  echo "ucoud-init does not support this OS"
+  exit 1
 fi
 
 PATH=\$PATH:/usr/local/bin
