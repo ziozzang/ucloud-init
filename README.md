@@ -8,17 +8,31 @@ UCloud System Init Script
 Installation
 ============
 
-* Centos 5.X, 6.X/Fedora 13 ucloud-init installation
+* Centos 5.X, 6.X ucloud-init installation
 
 ```
 curl https://raw.github.com/ziozzang/ucloud-init/master/install-centos | bash
 ```
 
 
-* Ubuntu 10.4, 12.4 /Debian 6 ucloud-init installation
+* Fedora 13 ucloud-init installation
+
+```
+curl https://raw.github.com/ziozzang/ucloud-init/master/install-fedora | bash
+```
+
+
+* Ubuntu 10.4, 12.4 ucloud-init installation
 
 ```
 wget -qO- https://raw.github.com/ziozzang/ucloud-init/master/install-ubuntu | bash
+```
+
+
+* Debian 6 ucloud-init installation
+
+```
+wget -qO- https://raw.github.com/ziozzang/ucloud-init/master/install-debian | bash
 ```
 
 
