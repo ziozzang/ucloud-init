@@ -3,7 +3,7 @@ ucloud-init
 
 * code by Jioh L. Jung (ziozzang@gmail.com)
 
-UCloud System Init Script
+This code is used to build KT UCloud System Init Script.
 
 Installation
 ============
